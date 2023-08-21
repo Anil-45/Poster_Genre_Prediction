@@ -52,16 +52,17 @@ def load_image(path):
     img = Image.open(path)
     return np.array(img).transpose(1, 0, 2)
 
-def save_images_to_npy(paths):
+def save_images_to_npy(paths, dest):
     """Load and save all images.
 
     Args:
         paths (list): Filenames
+        dest (str): Destination filename
     """
     images = []
     for path in paths:
         images.append(load_image(path))
-    np.save('images.npy', np.array(images))
+    np.save(dest, np.array(images))
     
 def load_npy_image_array(path):
     """Load image array
