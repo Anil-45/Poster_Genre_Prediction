@@ -4,6 +4,14 @@ import os
 import numpy as np
 from PIL import Image
 
+def file_assert(path):
+    """Assert path
+
+    Args:
+        path (str): Path
+    """
+    assert os.path.exists(path), "{} not found".format(path)
+
 def extract_year(title: str):
     """Extract year from Title.
 
@@ -48,9 +56,13 @@ def load_image(path):
     Returns:
         array: image array
     """
-    assert os.path.exists(path), "File {} not found".format(path) 
-    img = Image.open(path)
-    return np.array(img).transpose(1, 0, 2)
+    file_assert(path)
+    try:
+        img = Image.open(path)
+        return np.array(img).transpose(1, 0, 2)
+    except:
+        print(path)
+        return np.zeros(shape=(182, 268, 3), dtype=int)
 
 def save_images_to_npy(paths, dest):
     """Load and save all images.
@@ -61,7 +73,10 @@ def save_images_to_npy(paths, dest):
     """
     images = []
     for path in paths:
+        file_assert(path)
+        path = os.path.realpath(path)
         images.append(load_image(path))
+    dest = os.path.realpath(dest)
     np.save(dest, np.array(images))
     
 def load_npy_image_array(path):
@@ -73,5 +88,5 @@ def load_npy_image_array(path):
     Returns:
         array: Image array
     """
-    assert os.path.exists(path), "File {} not found".format(path)
+    file_assert(path)
     return np.load(path)
