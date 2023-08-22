@@ -2,7 +2,7 @@
 
 import os
 import numpy as np
-from PIL import Image
+import cv2
 
 def file_assert(path):
     """Assert path
@@ -37,12 +37,10 @@ def genres_to_vector(movie_genres, genres_list):
     Returns:
         array: vector representation of genres
     """
-    vector = np.zeros(genres_list, dtype=int)
-    if 0 == set(movie_genres).intersection(set(genres_list)):
-        return vector
+    vector = np.zeros(len(genres_list), dtype=int)
     
-    for idx in range(len(movie_genres)):
-        if movie_genres[idx] in genres_list:
+    for idx in range(len(genres_list)):
+        if genres_list[idx] in movie_genres:
             vector[idx] = 1
     
     return vector
@@ -58,35 +56,21 @@ def load_image(path):
     """
     file_assert(path)
     try:
-        img = Image.open(path)
-        return np.array(img).transpose(1, 0, 2)
+        img = cv2.imread(path)
+        img = cv2.resize(img, (150, 200))
+        return np.array(img, dtype=np.uint8)
     except:
         print(path)
-        return np.zeros(shape=(182, 268, 3), dtype=int)
+        return np.zeros(shape=(200, 150, 3), dtype=np.uint8)
 
-def save_images_to_npy(paths, dest):
-    """Load and save all images.
+def load_images(paths):
+    """Load all images in paths.
 
     Args:
         paths (list): Filenames
-        dest (str): Destination filename
     """
-    images = []
-    for path in paths:
+    images = np.zeros(shape=(len(paths), 200, 150, 3), dtype=np.uint8)
+    for idx, path in enumerate(paths):
         file_assert(path)
-        path = os.path.realpath(path)
-        images.append(load_image(path))
-    dest = os.path.realpath(dest)
-    np.save(dest, np.array(images))
-    
-def load_npy_image_array(path):
-    """Load image array
-
-    Args:
-        path (str): Path
-
-    Returns:
-        array: Image array
-    """
-    file_assert(path)
-    return np.load(path)
+        images[idx] = load_image(path)
+    return images
